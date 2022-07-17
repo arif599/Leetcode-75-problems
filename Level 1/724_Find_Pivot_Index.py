@@ -1,62 +1,71 @@
 """
 Understand:
-	Problem Statement: 
-		- given an array, find the running sum
-		- runningSum[i] = sum(nums[0]...nums[i])
+	Problem Statement:
+		- find pivot index where sum of left side is equal to sum of right side
 
 	Questions:
-		1. what if the array is empty?
-		2. can there be negative numbers?
-		3. can there be duplicate numbers?
-		4. Are we allowed use/modify the original array?
+		- what if there is no pivot index? return -1
+		- is the nums array always guaranteed to be non-empty?
+		- will there be more than one pivot index?
 
 	Test Cases:
-		input: [1,2,3,4]
-		output: [1,3,6,10]
+		input: [1,7,3,6,5,6]
+		output: 3
 
-		input: [1,1,1,1]
-		output: [1,2,3,4]
+		input: [1,2,3]
+		output: -1
 
 Match:
-	- hashmap problem
-	- summation problem
+	- prefix sum
+	- hashmap
 
 Plan:
-	- use hashmap to store the running sum where key = index and value = running sum
-	- iterate over the list and update the current position with running sum + current value
-	- return the list
+	- create a hashmap to store the running sum of the array
+	- iterate through the array and at each index location compare the left sum and right sum
+	- left sum = hashmap[index]
+	- right sum = hashmap[len(nums)-1]-hashmap[index]
+	- if left sum == right sum return index
+	- else return -1
 	- analysis:
 		time complexity: O(n)
 		space complexity: O(n)
 
-Optimizations:
+Optimization:
 	- space complexity is O(n) due to the hashmap, can we reduce this to O(1)?
-	- use a single variable to store the running sum and update it as we iterate over the list
+	- find the sum of the given array
+	- find left sum and right sum at each index
+	- if left sum == right sum return index
+	- else return -1
 	- analysis:
 		time complexity: O(n)
 		space complexity: O(1)
-
 """
 
-def runningSum(nums):
-	storedSum = {}
-	storedSum[0] = nums[0]
+def findPivotIndex(nums):
+	prefixSum = {}
+	prefixSum[0] = nums[0]
 
 	for i in range(1, len(nums)):
-		storedSum[i] = storedSum[i-1]+nums[i]
-		nums[i] = storedSum[i]
+		prefixSum[i] = prefixSum[i-1] + nums[i]
 
-	return nums
+	for i in range(len(nums)):
+		leftSum = prefixSum[i]
+		rightSum = prefixSum[len(nums)-1]-prefixSum[i]-nums[i+1]
+		if leftSum == rightSum:
+			return nums[i]
+	
+	return -1
 
-def optimized_runningSum(nums):
-	currSum = nums[0]
-	for i in range(1, len(nums)):
-		nums[i] += currSum
-		currSum = nums[i]
-	return nums
+def optimized_findPivotIndex(nums):
+	totalSum = sum(nums)
+	leftSum = 0
+	for i in range(len(nums)):
+		rightSum = totalSum - leftSum - nums[i]
+		if leftSum == rightSum:
+			return i
+		leftSum += nums[i]
+	return -1
 
 if __name__ == "__main__":
-	print(runningSum([1,2,3,4]))
-	print(runningSum([1,1,1,1]))
-	print(optimized_runningSum([1,2,3,4]))
-	print(optimized_runningSum([1,1,1,1]))
+	print(findPivotIndex([1,7,3,6,5,6]))
+	print(optimized_findPivotIndex([1,7,3,6,5,6]))
